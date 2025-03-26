@@ -79,4 +79,13 @@ public class SocioController {
         socioService.deletar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/buscarPorCpf/{cpf}") 
+    @SecurityRequirement(name = "bearer-key")
+    @Operation(summary = "Buscar sócio por CPF", description = "Retorna o sócio cadastrado com o CPF informado")
+    @ApiResponse(responseCode = "200", description = "Dados retornados com sucesso")
+    public Socio buscarPorCpf(@PathVariable String cpf) {
+        log.info("Buscar Sócio por CPF: " + cpf);
+        return socioService.buscarPorCpf(cpf);
+    }
 }

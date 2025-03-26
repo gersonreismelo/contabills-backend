@@ -52,4 +52,9 @@ public class SocioService {
         }
         socioRepository.deleteById(id);
     }
+
+    public Socio buscarPorCpf(String cpf) {
+        return socioRepository.findByCpf(cpf)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sócio não encontrado"));
+    }
 }
