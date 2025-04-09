@@ -38,10 +38,8 @@ public class ParcelamentoService {
 
     public Parcelamento atualizarParcelamento(Long id, Parcelamento parcelamentoAtualizado) {
         Parcelamento parcelamentoExistente = buscarParcelamentoPorId(id);
-        parcelamentoExistente.setEnviadoMesAtual(parcelamentoAtualizado.isEnviadoMesAtual());
-        parcelamentoExistente.setNumeroParcelamento(parcelamentoAtualizado.getNumeroParcelamento());
-        parcelamentoExistente.setValorParcela(parcelamentoAtualizado.getValorParcela());
-        parcelamentoExistente.setTipoParcelamento(parcelamentoAtualizado.getTipoParcelamento()); // Adicionado
+        parcelamentoExistente.setRegistroDoParcelamento(parcelamentoAtualizado.getRegistroDoParcelamento());
+        parcelamentoExistente.setTipoParcelamento(parcelamentoAtualizado.getTipoParcelamento());
 
         return parcelamentoRepository.save(parcelamentoExistente);
     }
@@ -51,21 +49,17 @@ public class ParcelamentoService {
 
         updates.forEach((key, value) -> {
             switch (key) {
-                case "numeroParcelamento":
-                    parcelamento.setNumeroParcelamento((Long) value);
+                case "registroDoParcelamento":
+                    parcelamento.setRegistroDoParcelamento((String) value);
                     break;
-                case "enviadoMesAtual":
-                    parcelamento.setEnviadoMesAtual((Boolean) value);
-                    break;
-                case "valorParcela":
-                    parcelamento.setValorParcela((Double) value);
+                case "tipoParcelamento":
+                    parcelamento.setTipoParcelamento((String) value);
                     break;
                 case "empresa":
                     @SuppressWarnings("unchecked")
                     Long empresaId = (Long) ((Map<String, Object>) value).get("apelidoId");
                     Empresa empresa = empresaRepository.findById(empresaId)
-                            .orElseThrow(
-                                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa não encontrada"));
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa não encontrada"));
                     parcelamento.setEmpresa(empresa);
                     break;
                 default:

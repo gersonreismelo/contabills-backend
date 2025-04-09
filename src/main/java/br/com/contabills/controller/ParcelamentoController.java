@@ -1,6 +1,6 @@
 package br.com.contabills.controller;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springdoc.core.annotations.ParameterObject;
@@ -18,19 +18,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import br.com.contabills.model.Parcelamento;
-import br.com.contabills.service.EmailService;
 import br.com.contabills.service.ParcelamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -42,9 +38,6 @@ public class ParcelamentoController {
         @Autowired
         private ParcelamentoService parcelamentoService;
 
-        @Autowired
-        private EmailService emailService;
-
         @GetMapping
         @SecurityRequirement(name = "bearer-key")
         @Operation(summary = "Listar Parcelamentos", description = "Retorna todos os parcelamentos cadastrados")
@@ -52,18 +45,13 @@ public class ParcelamentoController {
                         @ApiResponse(responseCode = "200", description = "Listagem feita com sucesso"),
                         @ApiResponse(responseCode = "404", description = "Lista não encontrada")
         })
-        public ResponseEntity<Map<String, Object>> index(
+        public ResponseEntity<Page<Parcelamento>> index(
                         @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
                 log.info("Listando todos os parcelamentos");
 
                 Page<Parcelamento> parcelamentosPage = parcelamentoService.listarParcelamentos(pageable);
 
-                Map<String, Object> response = new HashMap<>();
-                response.put("info",
-                                Map.of("count", parcelamentosPage.getTotalElements()));
-                response.put("results", parcelamentosPage.getContent());
-
-                return ResponseEntity.ok(response);
+                return ResponseEntity.ok(parcelamentosPage);
         }
 
         @GetMapping("/{id}")
@@ -88,44 +76,6 @@ public class ParcelamentoController {
                 log.info("Cadastrando parcelamento: {}", parcelamento);
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(parcelamentoService.cadastrarParcelamento(parcelamento));
-        }
-
-        @PostMapping("/enviar-pdf/{idParcelamento}")
-        @SecurityRequirement(name = "bearer-key")
-        @Operation(summary = "Enviar PDF e marcar parcelamento como enviado", description = "Envia o PDF do parcelamento para o e-mail da empresa e, se o envio for bem-sucedido, atualiza o status do parcelamento para enviado.")
-        @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "E-mail enviado com sucesso e parcelamento marcado como enviado"),
-                        @ApiResponse(responseCode = "500", description = "Erro ao enviar e-mail ou atualizar parcelamento")
-        })
-        public ResponseEntity<String> enviarPdfParaEmpresa(
-                        @PathVariable Long idParcelamento,
-                        @RequestParam("file") MultipartFile file,
-                        @RequestParam("subject") String subject,
-                        @RequestParam("text") String text) {
-
-                log.info("Enviando e-mail com anexo PDF para parcelamento ID: {}", idParcelamento);
-
-                try {
-                        Parcelamento parcelamento = parcelamentoService.buscarParcelamentoPorId(idParcelamento);
-
-                        String email = parcelamento.getEmpresa().getEmail();
-
-                        emailService.sendEmailWithAttachment(email, subject, text, file);
-
-                        parcelamento.setEnviadoMesAtual(true);
-                        parcelamentoService.atualizarParcelamento(idParcelamento, parcelamento);
-
-                        return ResponseEntity.ok("E-mail enviado com sucesso e parcelamento marcado como enviado!");
-
-                } catch (MessagingException e) {
-                        log.error("Erro ao enviar e-mail: {}", e.getMessage());
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                        .body("Erro ao enviar e-mail: " + e.getMessage());
-                } catch (Exception e) {
-                        log.error("Erro inesperado: {}", e.getMessage());
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                        .body("Erro inesperado: " + e.getMessage());
-                }
         }
 
         @PutMapping("/{id}")

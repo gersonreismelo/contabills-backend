@@ -48,16 +48,10 @@ public class EmpresaController {
             @ApiResponse(responseCode = "200", description = "Listagem feita com sucesso"),
             @ApiResponse(responseCode = "404", description = "Lista não encontrada")
     })
-    public ResponseEntity<Map<String, Object>> index(@ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<Page<Empresa>> index(@ParameterObject @PageableDefault(size = 10) Pageable pageable) {
         log.info("Listando todas as empresas com paginação");
-        Page<Empresa> empresasPage = empresaRepository.findAll(pageable);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("results", empresasPage.getContent());
-        response.put("info", Map.of(
-                "count", empresasPage.getTotalElements()));
-
-        return ResponseEntity.ok(response);
+        Page<Empresa> empresasPage = empresaService.listarEmpresas(pageable);
+        return ResponseEntity.ok(empresasPage);
     }
 
     @GetMapping("/{id}")
