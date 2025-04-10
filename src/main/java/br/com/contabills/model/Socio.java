@@ -11,13 +11,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import br.com.contabills.controller.EmpresaController;
 import br.com.contabills.controller.SocioController;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
@@ -28,6 +29,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Representa um sócio de uma {@link Empresa}, contendo dados pessoais e
+ * vínculos com empresas através da entidade {@link EmpresaSocio}.
+ *
+ * Inclui dados como CPF, RG, endereço, estado civil e profissão.
+ *
+ * @author Gerson
+ * @version 1.0
+ */
 @Data
 @Entity
 @Builder
@@ -85,14 +95,28 @@ public class Socio {
     @NotNull(message = "O endereço do sócio é obrigatório")
     private Endereco enderecoSocio;
 
-    @ManyToMany(mappedBy = "socios")
-    @JsonIgnoreProperties("socios")
-    private List<Empresa> empresas;
+    @OneToMany(mappedBy = "socio", cascade = CascadeType.PERSIST)
+    @JsonIgnoreProperties("socio")
+    private List<EmpresaSocio> empresaSocios;
 
+    /**
+     * Construtor que inicializa um {@link Socio} apenas com o CPF.
+     * 
+     * Útil para buscas ou operações onde apenas o CPF é necessário.
+     * 
+     * @param cpf CPF do sócio
+     */
     public Socio(String cpf) {
         this.cpf = cpf;
     }
 
+    /**
+     * Constrói um modelo HATEOAS da entidade socio, incluindo os links
+     * relacionados.
+     *
+     * @return um {@link EntityModel} com links para este sócio, lista de sócios,
+     *         exclusão e a primeira empresa relacionada (caso exista).
+     */
     public EntityModel<Socio> toEntityModel() {
         EntityModel<Socio> entityModel = EntityModel.of(
                 this,
@@ -103,10 +127,14 @@ public class Socio {
                         .linkTo(WebMvcLinkBuilder.methodOn(SocioController.class).index(null, Pageable.unpaged()))
                         .withRel("all"));
 
-        if (this.empresas != null && !this.empresas.isEmpty()) {
-            entityModel.add(WebMvcLinkBuilder.linkTo(
-                    WebMvcLinkBuilder.methodOn(EmpresaController.class).get(this.getEmpresas().get(0).getApelidoId()))
-                    .withRel("empresa"));
+        if (this.empresaSocios != null && !this.empresaSocios.isEmpty()) {
+            EmpresaSocio primeiraAssociacao = this.empresaSocios.get(0);
+            if (primeiraAssociacao != null && primeiraAssociacao.getEmpresa() != null) {
+                entityModel.add(WebMvcLinkBuilder
+                        .linkTo(WebMvcLinkBuilder.methodOn(EmpresaController.class)
+                                .get(primeiraAssociacao.getEmpresa().getApelidoId()))
+                        .withRel("empresa"));
+            }
         }
 
         return entityModel;

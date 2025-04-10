@@ -14,8 +14,23 @@ import br.com.contabills.model.Parcelamento;
 import br.com.contabills.repository.ParcelaRepository;
 import br.com.contabills.repository.ParcelamentoRepository;
 
+/**
+ * Serviço responsável pelas regras de negócio relacionadas à entidade {@link Parcela}.
+ * 
+ * Inclui operações para listagem, consulta, criação, atualização completa ou parcial
+ * e exclusão de parcelas, além do gerenciamento de suas associações com parcelamentos.
+ * 
+ * @author Gerson
+ * @version 1.0
+ */
 @Service
 public class ParcelaService {
+
+    /**
+     * Construtor padrão necessário para frameworks e serialização.
+     */
+    public ParcelaService() {
+    }
 
     @Autowired
     private ParcelaRepository parcelaRepository;
@@ -26,8 +41,8 @@ public class ParcelaService {
     /**
      * Lista todas as parcelas paginadas.
      * 
-     * @param pageable - informações de paginação e ordenação
-     * @return Page<Parcela> - página de parcelas
+     * @param pageable informações de paginação e ordenação
+     * @return página de {@link Parcela}
      */
     public Page<Parcela> listarParcelas(Pageable pageable) {
         return parcelaRepository.findAll(pageable);
@@ -36,8 +51,8 @@ public class ParcelaService {
     /**
      * Busca uma parcela pelo seu ID.
      * 
-     * @param id - ID da parcela
-     * @return Parcela - parcela encontrada
+     * @param id ID da parcela
+     * @return a {@link Parcela} encontrada
      * @throws ResponseStatusException caso a parcela não seja encontrada
      */
     public Parcela buscarParcelaPorId(Long id) {
@@ -48,8 +63,8 @@ public class ParcelaService {
     /**
      * Cadastra uma nova parcela.
      * 
-     * @param parcela - objeto parcela a ser cadastrado
-     * @return Parcela - parcela cadastrada
+     * @param parcela objeto {@link Parcela} a ser cadastrado
+     * @return a {@link Parcela} cadastrada
      */
     public Parcela cadastrarParcela(Parcela parcela) {
         return parcelaRepository.save(parcela);
@@ -58,9 +73,9 @@ public class ParcelaService {
     /**
      * Atualiza uma parcela existente.
      * 
-     * @param id - ID da parcela a ser atualizada
-     * @param parcelaAtualizada - objeto parcela com os novos dados
-     * @return Parcela - parcela atualizada
+     * @param id ID da parcela a ser atualizada
+     * @param parcelaAtualizada objeto {@link Parcela} com os novos dados
+     * @return a {@link Parcela} atualizada
      */
     public Parcela atualizarParcela(Long id, Parcela parcelaAtualizada) {
         Parcela parcelaExistente = buscarParcelaPorId(id);
@@ -76,14 +91,17 @@ public class ParcelaService {
      * Atualiza parcialmente os dados de uma parcela.
      * 
      * Campos permitidos para atualização parcial:
-     * - numero: (Integer)
-     * - valor: (Double)
-     * - enviadoMesAtual: (Boolean)
-     * - parcelamento: (Map com o id, ex.: {"id": 123}) – opcional
+     * <ul>
+     * <li>numero: (Integer)</li>
+     * <li>valor: (Double)</li>
+     * <li>enviadoMesAtual: (Boolean)</li>
+     * <li>parcelamento: (Map com o id, ex.: {"id": 123}) – opcional</li>
+     * </ul>
      * 
-     * @param id - ID da parcela
-     * @param updates - Map dos campos a serem atualizados e seus respectivos novos valores
-     * @return Parcela - parcela atualizada
+     * @param id ID da parcela
+     * @param updates mapa dos campos a serem atualizados e seus respectivos novos valores
+     * @return a {@link Parcela} atualizada
+     * @throws ResponseStatusException caso algum campo seja inválido ou o parcelamento não exista
      */
     public Parcela atualizarDadosParcialmente(Long id, Map<String, Object> updates) {
         Parcela parcela = buscarParcelaPorId(id);
@@ -91,23 +109,21 @@ public class ParcelaService {
         updates.forEach((key, value) -> {
             switch (key) {
                 case "numero":
-                    // Converte para Integer - certifique-se que o valor enviado seja compatível
                     parcela.setNumero((Integer) value);
                     break;
                 case "valor":
-                    // Converte para Double. Use Double.valueOf se o objeto estiver como String ou Number.
                     parcela.setValor(Double.valueOf(value.toString()));
                     break;
                 case "enviadoMesAtual":
                     parcela.setEnviadoMesAtual((Boolean) value);
                     break;
                 case "parcelamento":
-                    // Se desejar atualizar o relacionamento com Parcelamento, espera-se receber um Map que contenha o campo "id".
                     @SuppressWarnings("unchecked")
                     Map<String, Object> parcelamentoData = (Map<String, Object>) value;
                     Long parcelamentoId = Long.valueOf(parcelamentoData.get("id").toString());
                     Parcelamento parcelamento = parcelamentoRepository.findById(parcelamentoId)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcelamento não encontrado"));
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                    "Parcelamento não encontrado"));
                     parcela.setParcelamento(parcelamento);
                     break;
                 default:
@@ -121,7 +137,7 @@ public class ParcelaService {
     /**
      * Exclui uma parcela pelo seu ID.
      * 
-     * @param id - ID da parcela a ser excluída
+     * @param id ID da parcela a ser excluída
      */
     public void excluirParcela(Long id) {
         Parcela parcela = buscarParcelaPorId(id);

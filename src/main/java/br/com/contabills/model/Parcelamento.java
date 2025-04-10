@@ -26,13 +26,27 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Representa um parcelamento de valores relacionado a uma {@link Empresa}.
+ *
+ * Contém o tipo de parcelamento, o registro e as parcelas vinculadas.
+ *
+ * @author Gerson
+ * @version 1.0
+ */
 @Data
 @Entity
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "T_C_PARCELAMENTO")
 public class Parcelamento {
+        
+        /**
+         * Construtor padrão da classe Parcelamento.
+         */
+        public Parcelamento() {
+        }
+
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
@@ -50,6 +64,11 @@ public class Parcelamento {
         @OneToMany(mappedBy = "parcelamento", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<Parcela> parcelas = new ArrayList<>();
 
+        /**
+         * Cria um modelo HATEOAS da entidade parcelamento com os links relacionados.
+         *
+         * @return EntityModel com os links HATEOAS.
+         */
         public EntityModel<Parcelamento> toEntityModel() {
                 return EntityModel.of(
                                 this,

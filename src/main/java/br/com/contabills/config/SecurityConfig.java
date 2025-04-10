@@ -14,8 +14,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Classe de configuração de segurança da aplicação.
+ * 
+ * Define as políticas de segurança HTTP, autenticação, autorização, e o uso de tokens JWT.
+ * 
+ * Permite acesso público a rotas específicas como login, cadastro, Swagger e H2 console em ambiente de desenvolvimento.
+ * 
+ * Utiliza filtro {@link AuthorizationFilter} antes da autenticação padrão do Spring Security para processar JWTs.
+ * 
+ * @author Gerson
+ * @version 1.0
+ */
 @Configuration
 public class SecurityConfig {
+
+    /**
+     * Construtor padrão
+     */
+    public SecurityConfig() {
+    }
 
     @Autowired
     AuthorizationFilter authorizationFilter;
@@ -23,6 +41,13 @@ public class SecurityConfig {
     @Autowired
     Environment env;
 
+    /**
+     * Define a cadeia de filtros de segurança da aplicação.
+     *
+     * @param http objeto de configuração de segurança HTTP
+     * @return {@link SecurityFilterChain} com configurações aplicadas
+     * @throws Exception se ocorrer erro na configuração
+     */
     @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -50,11 +75,23 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Cria e expõe o bean {@link AuthenticationManager}, necessário para autenticação.
+     *
+     * @param config {@link AuthenticationConfiguration} do Spring
+     * @return {@link AuthenticationManager} configurado
+     * @throws Exception se ocorrer erro ao recuperar o gerenciador
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Bean de {@link PasswordEncoder} usando o algoritmo BCrypt.
+     *
+     * @return {@link BCryptPasswordEncoder} para codificação de senhas
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

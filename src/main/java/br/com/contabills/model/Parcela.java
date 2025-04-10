@@ -24,13 +24,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Representa uma parcela financeira vinculada a um {@link Parcelamento}.
+ *
+ * Contém informações como número, valor e status de envio da parcela.
+ *
+ * @author Gerson
+ * @version 1.0
+ */
 @Data
 @Entity
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "T_C_PARCELA")
 public class Parcela {
+
+    /**
+     * Construtor padrão da classe Parcela.
+     */
+    public Parcela() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,6 +65,11 @@ public class Parcela {
     @JsonIgnoreProperties("parcelas")
     private Parcelamento parcelamento;
 
+    /**
+     * Cria um modelo HATEOAS da entidade parcela com os links relacionados.
+     *
+     * @return EntityModel com os links HATEOAS.
+     */
     public EntityModel<Parcela> toEntityModel() {
         return EntityModel.of(
             this,

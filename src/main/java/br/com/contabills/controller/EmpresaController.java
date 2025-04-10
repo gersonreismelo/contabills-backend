@@ -1,8 +1,5 @@
 package br.com.contabills.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,11 +26,28 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Controller responsável por manipular as requisições relacionadas à entidade
+ * Empresa.
+ * 
+ * Permite operações de criação, leitura, atualização e exclusão (CRUD) com
+ * suporte a paginação e autenticação JWT.
+ * 
+ * @author Gerson
+ * @version 1.0
+ */
 @RestController
 @Slf4j
 @RequestMapping("empresas")
 @Tag(name = "Empresa", description = "Manipulação de dados das empresas")
 public class EmpresaController {
+
+    /**
+     * Construtor padrão necessário para o Spring Framework realizar a injeção de
+     * dependência.
+     */
+    public EmpresaController() {
+    }
 
     @Autowired
     private EmpresaRepository empresaRepository;
@@ -41,6 +55,12 @@ public class EmpresaController {
     @Autowired
     private EmpresaService empresaService;
 
+    /**
+     * Lista todas as empresas com suporte à paginação.
+     *
+     * @param pageable parâmetros de paginação
+     * @return página de empresas
+     */
     @GetMapping
     @SecurityRequirement(name = "bearer-key")
     @Operation(summary = "Listar empresas", description = "Retorna todas as empresas cadastradas")
@@ -54,6 +74,12 @@ public class EmpresaController {
         return ResponseEntity.ok(empresasPage);
     }
 
+    /**
+     * Busca uma empresa pelo seu ID.
+     *
+     * @param id identificador da empresa
+     * @return empresa encontrada ou 404 se não existir
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Detalhes empresa", description = "Retorna a empresa cadastrada com o id informado")
     @ApiResponses(value = {
@@ -69,6 +95,12 @@ public class EmpresaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Cadastra uma nova empresa.
+     *
+     * @param empresa objeto com os dados da nova empresa
+     * @return empresa criada com status 201
+     */
     @PostMapping
     @Operation(summary = "Cadastrar empresa", description = "Cadastra uma nova empresa com os dados informados")
     @ApiResponses(value = {
@@ -82,6 +114,13 @@ public class EmpresaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(novaEmpresa);
     }
 
+    /**
+     * Atualiza os dados de uma empresa existente.
+     *
+     * @param id      identificador da empresa
+     * @param empresa objeto com os dados atualizados
+     * @return empresa atualizada ou 404 se não encontrada
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar empresa", description = "Atualiza os dados da empresa com o id informado")
     @ApiResponses(value = {
@@ -95,6 +134,12 @@ public class EmpresaController {
         return ResponseEntity.ok(empresaAtualizada);
     }
 
+    /**
+     * Exclui uma empresa existente.
+     *
+     * @param id identificador da empresa
+     * @return resposta com status 204 se sucesso
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Excluir empresa", description = "Exclui a empresa com o id informado")
     @ApiResponses(value = {

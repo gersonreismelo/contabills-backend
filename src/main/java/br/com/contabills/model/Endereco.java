@@ -9,12 +9,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Representa um endereço utilizado por uma {@link Empresa} ou {@link Socio}.
+ *
+ * Essa classe é embutida em outras entidades (via {@code @Embedded}) e contém
+ * informações completas sobre localização física.
+ *
+ * @author Gerson
+ * @version 1.0
+ */
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
 public class Endereco {
+
+    /**
+     * Construtor padrão da classe Endereco.
+     */
+    public Endereco() {
+    }
 
     @NotBlank(message = "O logradouro é obrigatório")
     private String logradouro;
