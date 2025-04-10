@@ -24,13 +24,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Representa um parcelamento de valores relacionado a uma {@link Empresa}.
  *
  * Contém o tipo de parcelamento, o registro e as parcelas vinculadas.
- *
+ * 
  * @author Gerson
  * @version 1.0
  */
@@ -40,7 +39,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "T_C_PARCELAMENTO")
 public class Parcelamento {
-        
+
         /**
          * Construtor padrão da classe Parcelamento.
          */
@@ -61,6 +60,7 @@ public class Parcelamento {
         @JsonIgnoreProperties("parcelamentos")
         private Empresa empresa;
 
+        @Builder.Default
         @OneToMany(mappedBy = "parcelamento", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<Parcela> parcelas = new ArrayList<>();
 
@@ -72,16 +72,14 @@ public class Parcelamento {
         public EntityModel<Parcelamento> toEntityModel() {
                 return EntityModel.of(
                                 this,
-                                WebMvcLinkBuilder
-                                                .linkTo(WebMvcLinkBuilder.methodOn(ParcelamentoController.class)
-                                                                .get(id))
+                                WebMvcLinkBuilder.linkTo(
+                                                WebMvcLinkBuilder.methodOn(ParcelamentoController.class).get(id))
                                                 .withSelfRel(),
-                                WebMvcLinkBuilder
-                                                .linkTo(WebMvcLinkBuilder.methodOn(ParcelamentoController.class)
-                                                                .destroy(id))
+                                WebMvcLinkBuilder.linkTo(
+                                                WebMvcLinkBuilder.methodOn(ParcelamentoController.class).destroy(id))
                                                 .withRel("delete"),
-                                WebMvcLinkBuilder
-                                                .linkTo(WebMvcLinkBuilder.methodOn(ParcelamentoController.class)
+                                WebMvcLinkBuilder.linkTo(
+                                                WebMvcLinkBuilder.methodOn(ParcelamentoController.class)
                                                                 .index(Pageable.unpaged()))
                                                 .withRel("all"),
                                 WebMvcLinkBuilder.linkTo(

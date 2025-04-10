@@ -9,8 +9,8 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import br.com.contabills.controller.ParcelamentoController;
 import br.com.contabills.controller.ParcelaController;
+import br.com.contabills.controller.ParcelamentoController;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,7 +22,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Representa uma parcela financeira vinculada a um {@link Parcelamento}.
